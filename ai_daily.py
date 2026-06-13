@@ -8,20 +8,24 @@ from openai import OpenAI
 
 RSS_FEEDS = {
     "Hugging Face Blog": "https://huggingface.co/blog/feed.xml",
-    "OpenAI Blog": "https://openai.com/blog/rss.xml",
+    "OpenAI Blog": "https://openai.com/news/rss.xml",
     "Google DeepMind": "https://deepmind.google/blog/rss.xml",
+    "Anthropic News": "https://www.anthropic.com/news/rss.xml",
+    "Microsoft AI Blog": "https://blogs.microsoft.com/ai/feed/",
+    "Meta AI Blog": "https://ai.meta.com/blog/rss/",
+    "NVIDIA Blog": "https://blogs.nvidia.com/feed/",
+    "LangChain Blog": "https://blog.langchain.com/rss/",
+    "LlamaIndex Blog": "https://www.llamaindex.ai/blog/rss.xml",
     "TechCrunch AI": "https://techcrunch.com/category/artificial-intelligence/feed/",
     "The Verge AI": "https://www.theverge.com/rss/ai-artificial-intelligence/index.xml",
     "VentureBeat AI": "https://venturebeat.com/category/ai/feed/",
     "MIT Technology Review": "https://www.technologyreview.com/feed/",
-    "Ars Technica Tech": "https://feeds.arstechnica.com/arstechnica/technology-lab",
-    "NVIDIA Blog": "https://blogs.nvidia.com/feed/",
 }
 
 USER_AGENT = "AI-Daily-Report/1.0"
 
 
-def fetch_recent_articles(hours=24):
+def fetch_recent_articles(hours=36):
     cutoff = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(hours=hours)
     articles = []
 
@@ -64,42 +68,80 @@ def build_prompt(articles, today_str):
     for i, a in enumerate(articles, 1):
         articles_text += (
             f"\n{i}. [{a['source']}] {a['title']}\n"
+            f"   发布时间: {a['published']}\n"
             f"   链接: {a['link']}\n"
             f"   摘要: {a['summary']}\n"
         )
 
-    return f"""你是一位专业的 AI 行业分析师，为 AI 产品经理撰写每日 AI 资讯日报。
+    return f"""你是一位专业的 AI 行业分析师，同时具备 AI 产品经理视角。你的任务不是简单翻译新闻，而是从“产品机会、技术趋势、公司战略、开发者生态、人员流动”角度，为我整理每日 AI 资讯日报。
 
 今日（{today_str}）收集到的 AI 相关资讯如下：
 {articles_text}
 
-请根据以上资讯，用中文撰写一份简洁的日报，格式严格如下：
+请根据以上资讯，用中文撰写一份适合发到飞书、适合手机阅读的 AI 日报。
+
+重要要求：
+1. 只基于我提供的资讯总结，不要编造没有出现的信息。
+2. 如果某个板块没有足够信息，可以写“今日暂无值得关注更新”。
+3. 不要把链接堆在正文中间；每条新闻只在最后保留一行“原文：链接”。
+4. 不要写成普通新闻摘要，要突出“为什么重要”和“对 AI PM 的启发”。
+5. 内容要有信息密度，但不要太长，适合手机阅读。
+6. 优先关注：模型发布、AI Agent、RAG、多模态、AI Coding、开源模型、AI 产品化、商业化、人员变动、组织调整、融资并购。
+
+请严格按照下面格式输出：
 
 【AI日报｜{today_str}】
 
-一、今日最值得关注的 5 条
-（选取最重要的 5 条，每条格式：
-标题：xxx
-来源：xxx
-链接：xxx
-what：xxx（3句话）
-why：xxx（3句话）
-）
+一、今日必看 Top 5
 
-二、模型与大厂动态或者ai人员变动
-（OpenAI / Anthropic / Google / Meta / Microsoft 等，无则省略）
+1. 标题：xxx
+一句话结论：xxx
+What：用 3-5 句话说明发生了什么。
+Why：用 2-3 句话说明为什么重要。
+AI PM 视角：说明这件事对产品设计、用户需求、商业化、工作流或行业趋势有什么启发。
+原文：xxx
+
+2. 标题：xxx
+一句话结论：xxx
+What：xxx
+Why：xxx
+AI PM 视角：xxx
+原文：xxx
+
+二、模型与大厂动态
+- 总结 OpenAI / Anthropic / Google / Meta / Microsoft / NVIDIA / xAI 等公司的模型、产品、平台或战略更新。
+- 每条控制在 2-3 句话。
+- 无则写：今日暂无值得关注更新。
 
 三、开源与开发者生态
-（GitHub / Hugging Face / 框架工具等，无则省略）
+- 总结 GitHub、Hugging Face、LangChain、LlamaIndex、开源模型、开发者工具等动态。
+- 重点说明它们对开发者和 AI 应用构建的影响。
+- 无则写：今日暂无值得关注更新。
 
-四、AI 产品经理视角
-（2-3 条产品趋势或 AI PM 启发，结合今日资讯）
+四、AI 产品与商业化
+- 总结 AI 应用、Agent、办公自动化、搜索、AI Coding、企业服务、内容生成等产品动态。
+- 重点说明这些动态反映了什么产品趋势。
+- 无则写：今日暂无值得关注更新。
 
-五、今日关键词
-（5 个关键词，用「·」分隔）
+五、人员变动与组织调整
+- 关注 AI 公司高管、核心研究员、创始人、模型负责人、产品负责人、团队重组等变化。
+- 说明该变动可能代表的公司战略或行业信号。
+- 无则写：今日暂无值得关注人员变动。
 
-要求：全程中文，适合手机阅读，保留原始链接，不编造未出现在资讯中的内容。"""
+六、融资与行业趋势
+- 总结融资、并购、合作、监管、市场竞争等内容。
+- 重点说明行业方向变化。
+- 无则写：今日暂无值得关注更新。
 
+七、AI 产品经理视角
+请输出 2-3 条高价值启发，每条格式：
+- 启发 1：xxx
+- 启发 2：xxx
+- 启发 3：xxx
+
+八、今日关键词
+用「·」分隔，输出 5-8 个关键词。
+"""
 
 def summarize_with_llm(articles):
     today_str = datetime.date.today().strftime("%Y年%m月%d日")
