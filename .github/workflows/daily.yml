@@ -1,0 +1,29 @@
+name: AI Daily Report
+
+on:
+  schedule:
+    - cron: '0 1 * * *'  # 09:00 AM Beijing Time (UTC+8)
+  workflow_dispatch:       # Allow manual trigger from GitHub Actions UI
+
+jobs:
+  daily-report:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run AI daily report
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          FEISHU_WEBHOOK_URL: ${{ secrets.FEISHU_WEBHOOK_URL }}
+        run: python ai_daily.py
