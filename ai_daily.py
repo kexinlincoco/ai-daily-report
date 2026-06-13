@@ -82,11 +82,11 @@ def build_prompt(articles, today_str):
 标题：xxx
 来源：xxx
 链接：xxx
-发生了什么：xxx（1句话）
-为什么重要：xxx（1句话）
+what：xxx（3句话）
+why：xxx（3句话）
 ）
 
-二、模型与大厂动态
+二、模型与大厂动态或者ai人员变动
 （OpenAI / Anthropic / Google / Meta / Microsoft 等，无则省略）
 
 三、开源与开发者生态
