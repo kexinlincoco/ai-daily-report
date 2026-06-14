@@ -3,7 +3,7 @@ name: AI Daily Report
 on:
   push:
   schedule:
-    - cron: "*/5 * * * *"
+    - cron: "*/5 * * * *" # Every 5 minutes, for testing
   workflow_dispatch:
 
 jobs:
