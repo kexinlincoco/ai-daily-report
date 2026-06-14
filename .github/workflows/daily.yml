@@ -1,9 +1,8 @@
 name: AI Daily Report
 
 on:
-  push:
   schedule:
-    - cron: "*/5 * * * *" # Every 5 minutes, for testing
+    - cron: "3,8,13,18,23,28,33,38,43,48,53,58 * * * *"
   workflow_dispatch:
 
 jobs:
@@ -15,7 +14,6 @@ jobs:
         run: |
           echo "event_name=${{ github.event_name }}"
           echo "ref=${{ github.ref }}"
-          echo "sha=${{ github.sha }}"
           date -u
 
       - name: Checkout repository
