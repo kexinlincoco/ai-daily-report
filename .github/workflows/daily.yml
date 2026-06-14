@@ -2,8 +2,8 @@ name: AI Daily Report
 
 on:
   schedule:
-    - cron: '0 1 * * *'  # 09:00 AM Beijing Time (UTC+8)
-  workflow_dispatch:       # Allow manual trigger from GitHub Actions UI
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
 
 jobs:
   daily-report:
@@ -16,8 +16,8 @@ jobs:
       - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
-          cache: 'pip'
+          python-version: "3.11"
+          cache: "pip"
 
       - name: Install dependencies
         run: pip install -r requirements.txt
